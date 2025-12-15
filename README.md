@@ -26,9 +26,9 @@ ldc-build-runtimeは公式installerでLDCを入れると一緒に入ってくる
 ldc-build-runtime \
   --reset \
   --ninja \
-  --dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --platformlib= --Xcc=-specs=./my-musl-gcc.specs --checkaction=halt" \
+  --dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --platformlib= --Xcc=-specs=./my-musl-gcc.specs" \
   --targetSystem 'Linux;musl;UNIX' \
-  --linkerFlags '--static -L-Wl,--strip-all' \
+  --linkerFlags '--static' \
   BUILD_SHARED_LIBS=OFF \
   BUILD_LTO_LIBS=ON
 ```
@@ -41,17 +41,17 @@ ldc-build-runtime \
   - --boundscheck=off: boundscheckを完全に消す
   - --platformlib= : コンパイラがデフォルトでlibrt/libdl/libpthread/libmへリンクするよう指定しているのを防ぐ
   - -Xcc=specs=./my-musl-gcc.specs: カスタムのspecsファイルでリンクするライブラリを指定
-  - --checkaction=halt: 例外時のアクションをhaltにしてunwindを生成しないように
 - linkerFlags: リンカに伝えるフラグ
   - --static: 静的リンクすることを伝える(-lrtとかしないように)
-  - -L-Wl,--strip-all: シンボル情報を削除
 - BUILD_LTO_LIBS=ON: 実行バイナリでのLTO用にLLVM bitcodeを含んだライブラリを生成
 
 ## 2. staticな標準ライブラリとリンクして実行バイナリを作る
 
-コンパイルオプションの説明は上とだいたい同じになるので省略。
+コンパイルオプションの説明は上とだいたい同じになるので違うやつだけ。
 
-ldc2.confはどのライブラリにリンクするべきかを指定するための情報が入っているため明示的にしている。
+- --defaultlib=phobos2-ldc-lto,druntime-ldc-lto: LTOのためにbitcodeを含んだライブラリにリンク
+- --conf=(...): ldc2.confはどのライブラリにリンクするべきかを指定するための情報が入っているため明示的に指定
+- -L-Wl,--strip-all: シンボル情報を削除
 
 ```console
 ldc2 \
@@ -61,7 +61,6 @@ ldc2 \
   --boundscheck=off \
   --flto=full \
   --defaultlib=phobos2-ldc-lto,druntime-ldc-lto \
-  --checkaction=halt \
   --platformlib= \
   --conf=$(PWD)/ldc-build-runtime.tmp/etc/ldc2.conf \
   --Xcc=-specs=$(PWD)/my-musl-gcc.specs \
