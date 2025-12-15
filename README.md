@@ -26,7 +26,7 @@ ldc-build-runtimeは公式installerでLDCを入れると一緒に入ってくる
 ldc-build-runtime \
   --reset \
   --ninja \
-  --dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --Xcc=-specs=./my-musl-gcc.specs --checkaction=halt" \
+  --dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --platformlib= --Xcc=-specs=./my-musl-gcc.specs --checkaction=halt" \
   --targetSystem 'Linux;musl;UNIX' \
   --linkerFlags '--static -L-Wl,--strip-all' \
   BUILD_SHARED_LIBS=OFF \
@@ -39,6 +39,7 @@ ldc-build-runtime \
   - -flto=full: Fat LTOを指定してリンク時最適化で不要なセクションを消せるように
   - --release: assert/contracts/invariantを消してboundscheckをsafe関数のみ残す
   - --boundscheck=off: boundscheckを完全に消す
+  - --platformlib= : コンパイラがデフォルトでlibrt/libdl/libpthread/libmへリンクするよう指定しているのを防ぐ
   - -Xcc=specs=./my-musl-gcc.specs: カスタムのspecsファイルでリンクするライブラリを指定
   - --checkaction=halt: 例外時のアクションをhaltにしてunwindを生成しないように
 - linkerFlags: リンカに伝えるフラグ
@@ -61,6 +62,7 @@ ldc2 \
   --flto=full \
   --defaultlib=phobos2-ldc-lto,druntime-ldc-lto \
   --checkaction=halt \
+  --platformlib= \
   --conf=$(PWD)/ldc-build-runtime.tmp/etc/ldc2.conf \
   --Xcc=-specs=$(PWD)/my-musl-gcc.specs \
   -L-Wl,--strip-all \
