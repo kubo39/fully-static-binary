@@ -114,11 +114,36 @@ Total               768669
 
 ## FAQ
 
-- Q: なんで.gotとかあるの？
-  - A: たぶんdruntimeの初期化コードかどこかで参照されてるがよくわからん
+### Q1: なんで.gotとかあるの？
 
-- Q: -relocation-model=staticでno-pieにしてないのは？
-  - A: .got経由のコードサイズ減るかなというのと.rela.dynらへん消えるかなと期待したけど効果がなかった。--staticにしているのとLTOが効いているのかもしれない。
+- A: `libunwind_eh.a`の`uw_init_context_1`関数で使われてる。
 
-- Q: --fthread-modelでinitial-exec(ランタイムライブラリ)やlocal-exec(実行バイナリ)にしてないのは？
-  - A: デフォルトだと`__tls_get_addr`経由になりそうだけど効果がなかった。muslのstatic tlsの実装のためかもしれないし、これもLTOが効いているのかもしれない。
+```console
+$ objdump -s -j .got hello
+
+hello:     file format elf64-x86-64
+
+Contents of section .got:
+ 4aeff0 00000000 00000000                    ........
+$ nm -n hello | awk '$1 ~ /45d6/ {print}'
+000000000045d640 t uw_init_context_1
+$ nm /usr/lib/gcc/x86_64-linux-gnu/11/libgcc_eh.a 2>/dev/null | grep uw_init_context
+0000000000001f10 t uw_init_context_1
+0000000000000028 t uw_init_context_1.cold
+```
+
+### Q2: -relocation-model=staticでno-pieにしてないのは？
+
+- A: .got経由のコードサイズ減るかなと期待したけど効果がなかった。--staticにしているのとLTOが効いているのかもしれない。あとはGOTPCRELXをリンカがPC相対に最適化したのでコードサイズ上で違いが出なかったとか。
+
+### Q3: --fthread-modelでinitial-exec(ランタイムライブラリ)やlocal-exec(実行バイナリ)にしてないのは？
+
+- A: デフォルトだと`__tls_get_addr`経由になりそうだけど効果がなかった。おそらくリンカが最適化してくれている。
+
+### Q4: なんで他の言語(C,Zig,NimあるいはRust)と比較してこんなに大きいの？
+
+- A: いくつかの理由が考えられる
+  - druntimeの実装は例外(unwinding)と密接に結びついているので切り離せない
+  - std.stdioはstd.logger経由でstd.concurrencyやstd.socketに依存しているのでコードサイズを小さくできない
+  - テンプレートが異なる型でインスタンス化されるため、テンプレートを多用している標準ライブラリのコードは大きくなりがち(`nm <バイナリ> | ddemangle | grep -c '!('`などで確認できる)
+  - Dは型ごとにTypeInfoを生成し、上のテンプレートのインスタンス化とあわせて地味に大きなサイズになる(`nm <バイナリ> | grep -c 'TypeInfo'`などで確認できる)。最適化で消えている可能性もあるが。。
