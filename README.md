@@ -26,7 +26,7 @@ ldc-build-runtimeは公式installerでLDCを入れると一緒に入ってくる
 ldc-build-runtime \
   --reset \
   --ninja \
-  --dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --checkaction=halt" \
+  --dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --Xcc=-specs=./my-musl-gcc.specs --checkaction=halt" \
   --targetSystem 'Linux;musl;UNIX' \
   --linkerFlags '--static -L-Wl,--strip-all' \
   BUILD_SHARED_LIBS=OFF \
@@ -39,6 +39,7 @@ ldc-build-runtime \
   - -flto=full: Fat LTOを指定してリンク時最適化で不要なセクションを消せるように
   - --release: assert/contracts/invariantを消してboundscheckをsafe関数のみ残す
   - --boundscheck=off: boundscheckを完全に消す
+  - -Xcc=specs=./my-musl-gcc.specs: カスタムのspecsファイルでリンクするライブラリを指定
   - --checkaction=halt: 例外時のアクションをhaltにしてunwindを生成しないように
 - linkerFlags: リンカに伝えるフラグ
   - --static: 静的リンクすることを伝える(-lrtとかしないように)
@@ -54,7 +55,6 @@ ldc2.confはどのライブラリにリンクするべきかを指定するた�
 ```console
 ldc2 \
   --mtriple=x86_64-unknown-linux-musl \
-  --gcc=musl-gcc \
   -Oz \
   --release \
   --boundscheck=off \
@@ -62,6 +62,7 @@ ldc2 \
   --defaultlib=phobos2-ldc-lto,druntime-ldc-lto \
   --checkaction=halt \
   --conf=$(PWD)/ldc-build-runtime.tmp/etc/ldc2.conf \
+  --Xcc=-specs=$(PWD)/my-musl-gcc.specs \
   -L-Wl,--strip-all \
   --static \
   -of=hello main.d
@@ -86,33 +87,33 @@ $ ls -lh hello | awk '{print $5}'
 ```
 
 ```console
- size -A hello
+$ size -A hello
 hello  :
 section               size      addr
 .init                    3   4198400
-.text               482926   4198416
-.fini                    3   4681342
+.text               482718   4198416
+.fini                    3   4681134
 .rodata             159212   4681728
-.eh_frame            62128   4840944
-.gcc_except_table     2804   4903072
-.tdata                   4   4910528
-.tbss                  452   4910544
-.init_array             64   4910544
-.fini_array             16   4910608
+.eh_frame            62124   4840944
+.gcc_except_table     2804   4903068
+.tdata                   4   4910544
+.tbss                  452   4910560
+.init_array             56   4910560
+.fini_array              8   4910616
 .data.rel.ro           464   4910624
-.got                    16   4911088
+.got                     8   4911088
 .got.plt                24   4911104
-.data                53128   4911136
-__minfo               1232   4964264
+.data                53096   4911136
+__minfo               1232   4964232
 .bss                  6360   4965504
 .comment               101         0
-Total               768937
+Total               768669
 ```
 
 ## FAQ
 
 - Q: なんで.gotとかあるの？
-  - A: glibcのcrtbeginS.oにリンクしていてそれが参照している
+  - A: たぶんdruntimeの初期化コードかどこかで参照されてるがよくわからん
 
 - Q: -relocation-model=staticでno-pieにしてないのは？
   - A: .got経由のコードサイズ減るかなというのと.rela.dynらへん消えるかなと期待したけど効果がなかった。--staticにしているのとLTOが効いているのかもしれない。

@@ -4,17 +4,17 @@ build-ldc-runtime:
 		ldc-build-runtime \
 		--reset \
 		--ninja \
-		--dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --checkaction=halt" \
+		--dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off -Xcc=-specs=./my-musl-gcc.sepcs --checkaction=halt" \
 		--targetSystem 'Linux;musl;UNIX' \
 		--linkerFlags '--static -L-Wl,--strip-all' \
 		BUILD_SHARED_LIBS=OFF \
-		BUILD_LTO_LIBS=ON
+		BUILD_LTO_LIBS=ON \
+		C_SYSTEM_LIBS=""
 
 .PHONY: build
 build:
 	ldc2 \
 		--mtriple=x86_64-unknown-linux-musl \
-		--gcc=musl-gcc \
 		-Oz \
 		--release \
 		--boundscheck=off \
@@ -22,6 +22,7 @@ build:
 		--defaultlib=phobos2-ldc-lto,druntime-ldc-lto \
 		--checkaction=halt \
 		--conf=$(PWD)/ldc-build-runtime.tmp/etc/ldc2.conf \
+		--Xcc=-specs=$(PWD)/my-musl-gcc.specs \
 		-L-Wl,--strip-all \
 		--static \
 		-of=hello \

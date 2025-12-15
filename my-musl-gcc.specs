@@ -1,0 +1,14 @@
+*link_libgcc:
+-L/usr/lib/x86_64-linux-musl -L .%s
+
+*libgcc:
+libgcc.a%s %:if-exists(libgcc_eh.a%s)
+
+*startfile:
+/usr/lib/x86_64-linux-musl/Scrt1.o /usr/lib/x86_64-linux-musl/crti.o
+
+*endfile:
+/usr/lib/x86_64-linux-musl/crtn.o
+
+*link:
+-nostdlib -static
