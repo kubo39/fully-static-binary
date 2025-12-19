@@ -1,7 +1,6 @@
 .PHONY: build-ldc-runtime
 build-ldc-runtime:
-	CC=musl-gcc \
-		ldc-build-runtime \
+	ldc-build-runtime \
 		--reset \
 		--ninja \
 		--dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --platformlib= -Xcc=-specs=./my-musl-gcc.sepcs" \
