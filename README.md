@@ -115,7 +115,7 @@ Total               768669
 
 ### Q1: なんで.gotとかあるの？
 
-- A: `libunwind_eh.a`の`uw_init_context_1`関数で使われてる。
+- A: `libgcc_eh.a`の`uw_init_context_1`関数で使われてる。
 
 ```console
 $ objdump -s -j .got hello
@@ -133,7 +133,36 @@ $ nm /usr/lib/gcc/x86_64-linux-gnu/11/libgcc_eh.a 2>/dev/null | grep uw_init_con
 
 ### Q2: -relocation-model=staticでno-pieにしてないのは？
 
-- A: .got経由のコードサイズ減るかなと期待したけど効果がなかった。--staticにしているのとLTOが効いているのかもしれない。あとはGOTPCRELXをリンカがPC相対に最適化したのでコードサイズ上で違いが出なかったとか。
+- A: .got経由のコードサイズ減るかなと期待したけど効果がなかった。そもそも--staticにしているとno pieなバイナリになるのかも。
+
+```console
+$ file hello
+hello: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, stripped
+```
+
+オブジェクトファイルなんかみるとpieになってる。
+
+```console
+$ file ldc-build-runtime.tmp/objects/object.o
+ldc-build-runtime.tmp/objects/object.o: ELF 64-bit LSB relocatable, x86-64, version 1 (GNU/Linux), not stripped
+$ objdump --demangle=dlang -dr ldc-build-runtime.tmp/objects/object.o
+(...)
+0000000000000000 <object.Object.opCmp(Object)>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   41 56                   push   %r14
+   6:   53                      push   %rbx
+   7:   49 89 fe                mov    %rdi,%r14
+   a:   48 8b 3d 00 00 00 00    mov    0x0(%rip),%rdi        # 11 <object.Object.opCmp(Object)+0x11>
+                        d: R_X86_64_REX_GOTPCRELX       ClassInfo for Exception-0x4
+  11:   e8 00 00 00 00          call   16 <object.Object.opCmp(Object)+0x16>
+                        12: R_X86_64_PLT32      _d_allocclass-0x4
+  16:   48 89 c3                mov    %rax,%rbx
+  19:   48 8b 05 00 00 00 00    mov    0x0(%rip),%rax        # 20 <object.Object.opCmp(Object)+0x20>
+                        1c: R_X86_64_REX_GOTPCRELX      vtable for Exception-0x4
+  20:   48 89 03                mov    %rax,(%rbx)
+  23:   48 c7 43 08 00 00 00    movq   $0x0,0x8(%rbx)
+```
 
 ### Q3: --fthread-modelでinitial-exec(ランタイムライブラリ)やlocal-exec(実行バイナリ)にしてないのは？
 
