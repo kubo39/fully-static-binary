@@ -84,7 +84,7 @@ Hello, World!
 
 ```console
 $ ls -lh hello | awk '{print $5}'
-751K
+763K
 ```
 
 ```console
@@ -92,23 +92,23 @@ $ size -A hello
 hello  :
 section               size      addr
 .init                    3   4198400
-.text               482718   4198416
-.fini                    3   4681134
-.rodata             159212   4681728
-.eh_frame            62124   4840944
-.gcc_except_table     2804   4903068
-.tdata                   4   4910544
-.tbss                  452   4910560
-.init_array             56   4910560
-.fini_array              8   4910616
-.data.rel.ro           464   4910624
-.got                     8   4911088
-.got.plt                24   4911104
-.data                53096   4911136
-__minfo               1232   4964232
-.bss                  6360   4965504
-.comment               101         0
-Total               768669
+.text               495310   4198416
+.fini                    3   4693726
+.rodata             159596   4694016
+.eh_frame            62164   4853616
+.gcc_except_table     2804   4915780
+.tdata                   4   4922784
+.tbss                  452   4922800
+.init_array             56   4922800
+.fini_array             16   4922856
+.data.rel.ro           464   4922880
+.got                     8   4923344
+.got.plt                24   4923368
+.data                53096   4923392
+__minfo               1232   4976488
+.bss                  6104   4977728
+.comment                99         0
+Total               781435
 ```
 
 ## FAQ
