@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  push
+
+jobs:
+  build-and-run:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - shell: bash
+        run: |
+          sudo apt-get -q update
+          sudo apt-get install -yq \
+            musl-dev
+      - uses: dlang-community/setup-dlang@v2
+        with:
+          compiler: ldc
+      - run: make build-ldc-runtime
+      - run: make run
