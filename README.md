@@ -174,4 +174,5 @@ $ objdump --demangle=dlang -dr ldc-build-runtime.tmp/objects/object.o
   - druntimeの実装は例外(unwinding)と密接に結びついているので切り離せない
   - std.stdioはstd.logger経由でstd.concurrencyやstd.socketに依存しているのでコードサイズを小さくできない
   - テンプレートが異なる型でインスタンス化されるため、テンプレートを多用している標準ライブラリのコードは大きくなりがち(`nm <バイナリ> | ddemangle | grep -c '!('`などで確認できる)
-  - Dは型ごとにTypeInfoを生成し、上のテンプレートのインスタンス化とあわせて地味に大きなサイズになる(`nm <バイナリ> | grep -c 'TypeInfo'`などで確認できる)。最適化で消えている可能性もあるが。。
+  - Dは型ごとにTypeInfoを生成し、上のテンプレートのインスタンス化とあわせて地味に大きなサイズになる(`nm <バイナリ> | grep -c 'TypeInfo'`などで確認できる)
+  - モジュールコンストラクタ(`static this()`)があるライブラリは消せないので__minfoだけでなく.text/.rodata/.dataなどにも影響が出る
