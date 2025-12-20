@@ -22,6 +22,7 @@ build:
 		--platformlib= \
 		--conf=$(PWD)/ldc-build-runtime.tmp/etc/ldc2.conf \
 		--Xcc=-specs=$(PWD)/my-musl-gcc.specs \
+		-L-Wl,-z,noseparate-code \
 		-L-Wl,--strip-all \
 		--static \
 		-of=hello \

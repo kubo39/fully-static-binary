@@ -64,6 +64,7 @@ ldc2 \
   --platformlib= \
   --conf=$(PWD)/ldc-build-runtime.tmp/etc/ldc2.conf \
   --Xcc=-specs=$(PWD)/my-musl-gcc.specs \
+  -L-Wl,-z,noseparate-code \
   -L-Wl,--strip-all \
   --static \
   -of=hello main.d
@@ -84,7 +85,7 @@ Hello, World!
 
 ```console
 $ ls -lh hello | awk '{print $5}'
-763K
+759K
 ```
 
 ```console
