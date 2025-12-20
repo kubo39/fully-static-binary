@@ -51,6 +51,7 @@ ldc-build-runtime \
 
 - --defaultlib=phobos2-ldc-lto,druntime-ldc-lto: LTOのためにbitcodeを含んだライブラリにリンク
 - --conf=(...): ldc2.confはどのライブラリにリンクするべきかを指定するための情報が入っているため明示的に指定
+- -L-Wl,noseparate-code: .rodataと.textを同じPT_LOADセグメントにまとめる
 - -L-Wl,--strip-all: シンボル情報を削除
 
 ```console
