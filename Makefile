@@ -3,7 +3,7 @@ build-ldc-runtime:
 	ldc-build-runtime \
 		--reset \
 		--ninja \
-		--dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --platformlib= -Xcc=-specs=./my-musl-gcc.sepcs" \
+		--dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --platformlib= -L/usr/lib/x86_64-linux-musl" \
 		--targetSystem 'Linux;musl;UNIX' \
 		--linkerFlags '--static' \
 		BUILD_SHARED_LIBS=OFF \
@@ -22,8 +22,6 @@ build:
 		--platformlib= \
 		--conf=$(PWD)/ldc-build-runtime.tmp/etc/ldc2.conf \
 		--Xcc=-specs=$(PWD)/my-musl-gcc.specs \
-		-L-Wl,-z,noseparate-code \
-		-L-Wl,--strip-all \
 		--static \
 		-of=hello \
 		main.d
