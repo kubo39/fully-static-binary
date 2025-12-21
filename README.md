@@ -142,7 +142,7 @@ $ file hello
 hello: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, stripped
 ```
 
-オブジェクトファイルなんかみるとpieになってる。
+オブジェクトファイルなんかみるとrelocatableになってる。
 
 ```console
 $ file ldc-build-runtime.tmp/objects/object.o
