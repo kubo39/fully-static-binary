@@ -26,11 +26,12 @@ ldc-build-runtimeは公式installerでLDCを入れると一緒に入ってくる
 ldc-build-runtime \
   --reset \
   --ninja \
-  --dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --platformlib= --Xcc=-specs=./my-musl-gcc.specs" \
+  --dFlags="-mtriple=x86_64-unknown-linux-musl -Oz -flto=full --release --boundscheck=off --platformlib= -L/usr/lib/x86_64-linux-musl" \
   --targetSystem 'Linux;musl;UNIX' \
   --linkerFlags '--static' \
   BUILD_SHARED_LIBS=OFF \
-  BUILD_LTO_LIBS=ON
+  BUILD_LTO_LIBS=ON \
+  C_SYSTEM_LIBS=""
 ```
 
 - dFlags: LDCのコンパイルフラグ
@@ -40,7 +41,6 @@ ldc-build-runtime \
   - --release: assert/contracts/invariantを消してboundscheckをsafe関数のみ残す
   - --boundscheck=off: boundscheckを完全に消す
   - --platformlib= : コンパイラがデフォルトでlibrt/libdl/libpthread/libmへリンクするよう指定しているのを防ぐ
-  - -Xcc=specs=./my-musl-gcc.specs: カスタムのspecsファイルでリンクするライブラリを指定
 - linkerFlags: リンカに伝えるフラグ
   - --static: 静的リンクすることを伝える(-lrtとかしないように)
 - BUILD_LTO_LIBS=ON: 実行バイナリでのLTO用にLLVM bitcodeを含んだライブラリを生成
@@ -51,6 +51,7 @@ ldc-build-runtime \
 
 - --defaultlib=phobos2-ldc-lto,druntime-ldc-lto: LTOのためにbitcodeを含んだライブラリにリンク
 - --conf=(...): ldc2.confはどのライブラリにリンクするべきかを指定するための情報が入っているため明示的に指定
+- -Xcc=specs=./my-musl-gcc.specs: カスタムのspecsファイルでリンクするライブラリを指定
 - -L-Wl,noseparate-code: .rodataと.textを同じPT_LOADセグメントにまとめる
 - -L-Wl,--strip-all: シンボル情報を削除
 
